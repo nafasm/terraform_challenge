@@ -1,0 +1,101 @@
+#1 new VPC named "vpc_devops" with a Internet Gateway attached to it
+
+resource "aws_vpc" "vpc_devops" {
+  cidr_block       = "10.0.0.0/16"
+}
+
+#2 new public subnet named "sub_public_devops"
+resource "aws_subnet" "sub_public_devops" {
+  vpc_id     = "${aws_vpc.vpc_devops.id}"
+  cidr_block = "10.0.1.0/24"
+}
+#3 new security group named "sg_devops" which allows access from "0.0.0.0/0" for SSH(22) and HTTP(80)
+resource "aws_security_group" "sg_devops" {
+  name        = "sg_devops"
+  description = "Allow SSH and HTTP Traffic"
+  vpc_id      = "${aws_vpc.vpc_devops.id}"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+}
+
+# 4 new EC2 key pair named "kp_devops"
+resource "aws_key_pair" "kp_devops" {
+  key_name   = "kp_devops"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD3F6tyPEFEzV0LX3X8BsXdMsQz1x2cEikKDEY0aIj41qgxMCP/iteneqXSIFZBp5vizPvaoIR3Um9xK7PGoW8giupGn+EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
+}
+#5 new EC2 instance of type t2.micro of any linux distro named "ec2_devops", with security group "sg_devops", and accessible by SSH with "kp_devops"
+
+# Create a new instance of the latest Ubuntu 14.04 on an
+# t2.micro node with an AWS Tag naming it "HelloWorld"
+provider "aws" {
+  region = "us-west-2"
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_instance" "ec2_devops" {
+  ami           = "${data.aws_ami.ubuntu.id}"
+  vpc_id         = "${aws_vpc.vpc_devops.id}"
+  security_group_id         = "{aws_security_group.sg_devops.id}"
+  key_pair_id 	= "{aws_key_pair.kp_devops.id}"
+  vpc_id      = "${aws_vpc.vpc_devops.id}"
+  instance_type = "t2.micro"
+  key_name =
+
+  tags = {
+    Name = "HelloWorld"
+  }
+}
+
+#6 Assign a static public IP to "ec2_devops", and expose this public IP as terraform output
+https://www.terraform.io/docs/providers/aws/r/eip.html
+resource "aws_eip" "lb" {
+  instance = "${aws_instance.ec2_devops.id}"
+  vpc      = true
+}
+
+https://www.terraform.io/docs/configuration/outputs.html
+
+output "instance_ip_addr" {
+  value = aws_instance.server.public_ip
+}
+
+
