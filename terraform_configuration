@@ -1,0 +1,155 @@
+#Please note you have to provide values for access_key, secret_key,I have removed the real value from my configuration for secruity reason
+
+
+provider "aws" {
+  access_key = ""
+  secret_key = ""
+  region = "us-east-2"
+}
+
+#1 Creaate a new  VPC named "vpc_devops" with an Internet Gateway attached to it
+resource "aws_vpc" "vpc_devops" {
+  cidr_block = "172.17.0.0/16"
+  tags = {
+    Name = "vpc_devops"
+  }
+}
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.vpc_devops.id
+  tags = {
+    Name = "gw"
+  }
+}
+
+
+#2 Create a new public subnet named "sub_public_devops"
+
+resource "aws_subnet" "sub_public_devops" {
+  vpc_id     = aws_vpc.vpc_devops.id
+  cidr_block = "172.17.17.0/24"
+  tags = {
+    Name = "sub_public_devops"
+  }
+}
+
+#3 Create new security group named "sg_devops" which allows access from "0.0.0.0/0" for SSH(22) and HTTP(80)
+resource "aws_security_group" "sg_devops" {
+  name        = "sg_devops"
+  description = "Allow SSH and HTTP Traffic"
+  vpc_id      = aws_vpc.vpc_devops.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+}
+
+# 4 Create  new EC2 key pair named "kp_devops"
+resource "aws_key_pair" "kp_devops" {
+  key_name   = "kp_devops"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAtXEAk2b9LnZzH0Xf4T0Ur68OmGhg1dF0G1kszMxbt4eYLzi//rLzDZHdgnn00UwIo8/tfW/P5NGT5ZkilRm+9X0E+6ViSbIkhG/t5OIXhLOzr6Kr/scxSik7dM0tqZPiIcHwrkNT1uSl3WhhZJg/rjaGNQrRZ2DGF74rPowRNfD9j6kT0crdNx/zSBdT51cbhEcxmMsHvCnaG2FBodx+Hnf8+PZuGtxKdrz6G9TMWkHRiu1x2XELtjHftsJdWBToWo5L4ndkW84n8lpEo6N8XwFsa9lipjSCL9pc2SqVBcWNXlan2k/1Zlj1oI9oRnuObFYZpBHBnD8xwX0VY/BVBQ== rsa-key-20200125"
+   }
+
+ 
+# 5  Create new EC2 instance of type t2.micro of any linux distro named "ec2_devops", with security group "sg_devops", and accessible by SSH with "kp_devops"
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_instance" "ec2_devops" {
+  ami               =  data.aws_ami.ubuntu.id
+  vpc_security_group_ids =  aws_security_group.sg_devops.*.id
+  key_name 	    =     "kp_devops"
+  instance_type     = "t2.micro"
+  subnet_id         = aws_subnet.sub_public_devops.id
+  tags = {
+    Name = "ec2_devops"
+  }
+}
+
+#6  assign a static public IP to "ec2_devops", and expose this public IP as terraform output
+resource "aws_eip" "ec2_devops_public_ip" {
+  instance = aws_instance.ec2_devops.id
+  vpc      = true
+  tags = {
+    Name = "ec2_devops_public_ip"
+  }
+}
+output "instance_public_ip" {
+  value = aws_eip.ec2_devops_public_ip.public_ip
+}
+
+
+#7 Additional configuration inlcuding ncl 
+resource "aws_network_acl" "acl_devops" {
+  vpc_id = aws_vpc.vpc_devops.id
+  egress {
+  protocol = "-1"
+  rule_no = 2
+  action = "allow"
+  cidr_block = "0.0.0.0/0"
+  from_port = 0
+  to_port = 0
+   }
+ingress {
+  protocol = "-1"
+  rule_no = 1
+  action = "allow"
+  cidr_block = "0.0.0.0/0"
+  from_port = 0
+  to_port = 0
+  }
+  tags = {
+    Name = "acl_devops"
+  }
+}
+
+resource "aws_route_table" "route_devops" {
+  vpc_id = aws_vpc.vpc_devops.id
+  tags = {
+     Name = "route_devops"
+  }
+route {
+  cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.gw.id
+}
+}
+
+resource "aws_route_table_association" "route_asso_devops" {
+  subnet_id         = aws_subnet.sub_public_devops.id
+  route_table_id = aws_route_table.route_devops.id
+}
