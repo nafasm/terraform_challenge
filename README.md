@@ -1,5 +1,4 @@
-# challeng
-Public challenge
+
 There are 3 files have been attached here, and their details are given below 
 
 Terraform_configuration
