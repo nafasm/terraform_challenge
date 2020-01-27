@@ -3,6 +3,7 @@ Public challenge
 There are 3 files have been attached here, and their details are given below 
 
 Terraform_configuration
+
 #######################
 Terraform_configuration file, has all the hcl codes to create the following 
         1. A new vpc named  vpc_devop
@@ -14,8 +15,10 @@ Terraform_configuration file, has all the hcl codes to create the following
         7. Create route for vpc (vpc_devop) and associate the route to subnet sub_public_devops
 
 terrafrom plan
+
 ##############
 Terraform plan file has both the terraform plan and terraform apply output of the terraform configuration. 
 ssh_screenshot.PNG
+
 ##################
 This screenshot shows, EC2 instance ec2_devops has been accessible from the internet using key pair kp_devops
