@@ -114,30 +114,8 @@ output "instance_public_ip" {
 }
 
 
-#7 Additional configuration inlcuding ncl 
-resource "aws_network_acl" "acl_devops" {
-  vpc_id = aws_vpc.vpc_devops.id
-  egress {
-  protocol = "-1"
-  rule_no = 2
-  action = "allow"
-  cidr_block = "0.0.0.0/0"
-  from_port = 0
-  to_port = 0
-   }
-ingress {
-  protocol = "-1"
-  rule_no = 1
-  action = "allow"
-  cidr_block = "0.0.0.0/0"
-  from_port = 0
-  to_port = 0
-  }
-  tags = {
-    Name = "acl_devops"
-  }
-}
-
+#7 Create a route named "aws_route_table" and associate this with the subnet sub_public_devops, to make EC2 instance "ec2_devops" accessible from internet
+ 
 resource "aws_route_table" "route_devops" {
   vpc_id = aws_vpc.vpc_devops.id
   tags = {
