@@ -7,6 +7,7 @@ Terraform_configuration
 #######################
 
 Terraform_configuration file, has all the hcl codes to create the following 
+
         1. A new vpc named  vpc_devop
         2. A new public subnet named "sub_public_devops"
         3. A new security group named "sg_devops" which allows access from "0.0.0.0/0" for SSH(22) and HTTP(80)
