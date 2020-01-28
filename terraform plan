@@ -1,8 +1,4 @@
-
-c:\sg\terraform\scripts>
-c:\sg\terraform\scripts>
-c:\sg\terraform\scripts>
-c:\sg\terraform\scripts>terraform plan
+c:\sg\terraform\scripts>terraform.exe plan
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
@@ -186,6 +182,19 @@ Terraform will perform the following actions:
               + self             = false
               + to_port          = 443
             },
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = ""
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
+            },
         ]
       + id                     = (known after apply)
       + ingress                = [
@@ -214,6 +223,19 @@ Terraform will perform the following actions:
               + security_groups  = []
               + self             = false
               + to_port          = 443
+            },
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = ""
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
             },
         ]
       + name                   = "sg_devops"
@@ -273,7 +295,8 @@ can't guarantee that exactly these actions will be performed if
 "terraform apply" is subsequently run.
 
 
-c:\sg\terraform\scripts>terraform apply
+c:\sg\terraform\scripts>
+c:\sg\terraform\scripts>terraform.exe apply
 data.aws_ami.ubuntu: Refreshing state...
 
 An execution plan has been generated and is shown below.
@@ -451,6 +474,19 @@ Terraform will perform the following actions:
               + self             = false
               + to_port          = 443
             },
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = ""
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
+            },
         ]
       + id                     = (known after apply)
       + ingress                = [
@@ -479,6 +515,19 @@ Terraform will perform the following actions:
               + security_groups  = []
               + self             = false
               + to_port          = 443
+            },
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = ""
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
             },
         ]
       + name                   = "sg_devops"
@@ -541,30 +590,29 @@ aws_key_pair.kp_devops: Creating...
 aws_vpc.vpc_devops: Creating...
 aws_key_pair.kp_devops: Creation complete after 2s [id=kp_devops]
 aws_vpc.vpc_devops: Still creating... [10s elapsed]
-aws_vpc.vpc_devops: Creation complete after 13s [id=vpc-018bff10162cd7b9b]
+aws_vpc.vpc_devops: Creation complete after 11s [id=vpc-02a24f6a51e90edc7]
 aws_internet_gateway.gw: Creating...
 aws_subnet.sub_public_devops: Creating...
 aws_security_group.sg_devops: Creating...
-aws_subnet.sub_public_devops: Creation complete after 5s [id=subnet-0593a51929578ea40]
-aws_internet_gateway.gw: Creation complete after 7s [id=igw-0bcf2646f6afec34d]
+aws_subnet.sub_public_devops: Creation complete after 4s [id=subnet-0aa1653685daa7d2d]
+aws_internet_gateway.gw: Creation complete after 5s [id=igw-023ee3bc36021da0a]
 aws_route_table.route_devops: Creating...
-aws_security_group.sg_devops: Creation complete after 10s [id=sg-09ea78748cd618cbc]
+aws_security_group.sg_devops: Creation complete after 8s [id=sg-0d61224d172dc8e6b]
 aws_instance.ec2_devops: Creating...
-aws_route_table.route_devops: Creation complete after 6s [id=rtb-003277aac91ff6d92]
+aws_route_table.route_devops: Creation complete after 5s [id=rtb-037e67c67a59514e1]
 aws_route_table_association.route_asso_devops: Creating...
-aws_route_table_association.route_asso_devops: Creation complete after 1s [id=rtbassoc-031f6557820b14892]
+aws_route_table_association.route_asso_devops: Creation complete after 1s [id=rtbassoc-0187f1049f5005145]
 aws_instance.ec2_devops: Still creating... [10s elapsed]
 aws_instance.ec2_devops: Still creating... [20s elapsed]
 aws_instance.ec2_devops: Still creating... [30s elapsed]
-aws_instance.ec2_devops: Still creating... [40s elapsed]
-aws_instance.ec2_devops: Creation complete after 47s [id=i-092b354ddc0ed8099]
+aws_instance.ec2_devops: Creation complete after 32s [id=i-08d6644393f5a28b2]
 aws_eip.ec2_devops_public_ip: Creating...
-aws_eip.ec2_devops_public_ip: Creation complete after 8s [id=eipalloc-03b7ca2c886eafc93]
+aws_eip.ec2_devops_public_ip: Creation complete after 5s [id=eipalloc-04fd7d2eb160e91d4]
 
 Apply complete! Resources: 9 added, 0 changed, 0 destroyed.
 
 Outputs:
 
-instance_public_ip = 3.131.0.222
+instance_public_ip = 3.17.210.73
 
 c:\sg\terraform\scripts>
